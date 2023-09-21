@@ -51,6 +51,11 @@ install_env() {
     return 1
   fi
 
+  if ! [ -w "$ANYENV_ENVS_ROOT" ]; then
+    echoe "You do not have write permissions for $ANYENV_ENVS_ROOT."
+    return 1
+  fi
+
   mkdir -p "$BUILD_DIR"
   pushd "$BUILD_DIR"
   fetch_git "${destination}" "${git_url}" "${git_ref}"
@@ -77,6 +82,11 @@ install_plugin() {
   if [ ! -n "$destination" ] || [ ! -n "$git_url" ]; then
     echoe "destination or git-url is not specified."
     echoe "USAGE: install_plugin destination git-url [git-ref]"
+    return 1
+  fi
+
+  if ! [ -w "${PREFIX}/plugins" ]; then
+    echoe "You do not have write permissions for ${PREFIX}/plugins."
     return 1
   fi
 
@@ -121,6 +131,12 @@ initialize_manifest() {
   git_url="${ARGUMENTS[0]:-$ANYENV_DEFAULT_MANIFEST_GIT_REPO}"
   git_ref="${ARGUMENTS[1]}"
   local force="$1"
+
+  if [ -d "$ANYENV_DEFINITION_ROOT" ] && ! [ -w "$ANYENV_DEFINITION_ROOT" ]; then
+    echoe "You do not have write permissions for $ANYENV_DEFINITION_ROOT."
+    return 1
+  fi
+
   if [ ! -d $ANYENV_DEFINITION_ROOT ]; then
     echo "Manifest directory doesn't exist: ${ANYENV_DEFINITION_ROOT}"
     if [ -n "$force" ]; then
